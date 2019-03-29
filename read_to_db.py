@@ -1,4 +1,5 @@
 import serial
+import serial.tools.list_ports
 import os
 import sqlite3
 import time
@@ -6,16 +7,12 @@ import time
 enva = os.environ.get("ARDUINO")
 
 if enva is None:
-    devs = [
-        d
-        for d in os.listdir("/dev")
-        if d.startswith("ttyACM") or d.startswith("cu.usbmodem")
-    ]
+    devs = [a.device for a in serial.tools.list_ports.comports() if a[2] != "n/a"]
     assert len(devs) == 1, "Incorrect number of devices found"
 else:
     devs = [enva]
 
-s = serial.Serial("/dev/" + devs[0])
+s = serial.Serial(devs[0])
 
 con = sqlite3.connect("h.db")
 cur = con.cursor()
